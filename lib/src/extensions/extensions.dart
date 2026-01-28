@@ -17,16 +17,32 @@ extension ResultT<T> on T {
   Result<T> toSuccess() => Success(this);
 }
 
-extension ResultFromJson<T> on T Function(Map<String, dynamic>) {
-  /// Convert a fromJson factory to a Result
+extension ResultFunction<T> on T Function() {
+  /// Convert a no-argument function to a Result
   /// set [report] to false to disable error logging
   ///
   /// ```dart
-  /// final result = AlgoliaCarruselSection.fromJson.toResult(json);
+  /// final result = someFunction.toResult();
   /// ```
-  Result<T> toResult(Map<String, dynamic> json, {bool report = true}) {
+  Result<T> toResult({bool report = true}) {
     try {
-      return Success(this(json));
+      return Success(this());
+    } catch (e, s) {
+      return Failure(e, stackTrace: s, report: report);
+    }
+  }
+}
+
+extension ResultFunction1<T, A> on T Function(A) {
+  /// Convert a single-argument function to a Result (e.g., fromJson)
+  /// set [report] to false to disable error logging
+  ///
+  /// ```dart
+  /// final result = Model.fromJson.toResult(json);
+  /// ```
+  Result<T> toResult(A arg, {bool report = true}) {
+    try {
+      return Success(this(arg));
     } catch (e, s) {
       return Failure(e, stackTrace: s, report: report);
     }
