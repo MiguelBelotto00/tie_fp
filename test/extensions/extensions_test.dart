@@ -1,6 +1,18 @@
 import 'package:test/test.dart';
 import 'package:tie_fp/tie_fp.dart';
 
+class TestModel {
+  const TestModel({required this.name, required this.age});
+
+  factory TestModel.fromJson(Map<String, dynamic> json) => TestModel(
+        name: json['name'] as String,
+        age: json['age'] as int,
+      );
+
+  final String name;
+  final int age;
+}
+
 void main() {
   group('Extensions result', () {
     int value(int v) => v;
@@ -46,6 +58,51 @@ void main() {
 
       expect(r, isA<Result>());
       expect(r.getError(), isException);
+      expect(() => r.getValue(), throwsA(isA<Failure>()));
+    });
+  });
+
+  group('ResultFromJson extension', () {
+    test('JSON parsing returns Success with valid data', () {
+      final json = {'name': 'John', 'age': 25};
+
+      final r = TestModel.fromJson.toResult(json);
+
+      expect(r, isA<Result<TestModel>>());
+      expect(r.isError(), false);
+      expect(r.getValue().name, 'John');
+      expect(r.getValue().age, 25);
+    });
+
+    test('JSON parsing returns Failure with missing required field', () {
+      final json = <String, dynamic>{'name': 'John'};
+
+      final r = TestModel.fromJson.toResult(json);
+
+      expect(r, isA<Result<TestModel>>());
+      expect(r.isError(), true);
+      expect(r.getError(), isA<TypeError>());
+      expect(() => r.getValue(), throwsA(isA<Failure>()));
+    });
+
+    test('JSON parsing returns Failure with wrong type', () {
+      final json = <String, dynamic>{'name': 'John', 'age': 'not an int'};
+
+      final r = TestModel.fromJson.toResult(json);
+
+      expect(r, isA<Result<TestModel>>());
+      expect(r.isError(), true);
+      expect(r.getError(), isA<TypeError>());
+      expect(() => r.getValue(), throwsA(isA<Failure>()));
+    });
+
+    test('JSON parsing returns Failure with null json values', () {
+      final json = <String, dynamic>{'name': null, 'age': 25};
+
+      final r = TestModel.fromJson.toResult(json);
+
+      expect(r, isA<Result<TestModel>>());
+      expect(r.isError(), true);
       expect(() => r.getValue(), throwsA(isA<Failure>()));
     });
   });
