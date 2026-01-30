@@ -31,10 +31,6 @@ extension ResultT<T> on T {
   }
 }
 
-extension ResultFunction<T> on T{
-  
-}
-
 extension ResultFunction1<T, A> on T Function(A) {
   /// Convert a single-argument function to a Result (e.g., fromJson)
   /// set [report] to false to disable error logging
