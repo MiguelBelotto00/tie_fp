@@ -15,9 +15,7 @@ extension ResultFuture<T> on Future<T> {
 
 extension ResultT<T> on T {
   Result<T> toSuccess() => Success(this);
-}
 
-extension ResultFunction<T> on T Function() {
   /// Convert a no-argument function to a Result
   /// set [report] to false to disable error logging
   ///
@@ -26,11 +24,15 @@ extension ResultFunction<T> on T Function() {
   /// ```
   Result<T> toResult({bool report = true}) {
     try {
-      return Success(this());
+      return Success(this);
     } catch (e, s) {
       return Failure(e, stackTrace: s, report: report);
     }
   }
+}
+
+extension ResultFunction<T> on T{
+  
 }
 
 extension ResultFunction1<T, A> on T Function(A) {
